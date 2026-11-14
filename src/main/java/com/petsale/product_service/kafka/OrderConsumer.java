@@ -18,15 +18,14 @@ public class OrderConsumer {
 
     private final ProductRepository productRepository;
 
-    @KafkaListener(topics = "order-topic", groupId = "product-group")
+    @KafkaListener(topics = "order-events", groupId = "product-group")
     public void consumeOrderEvent(String message) {
         log.info("Received Kafka message: {}", message);
 
         try {
-            // The message is formatted as "PRODUCT_ID:QUANTITY" (e.g., "1:2")
-            String[] parts = message.split(":");
-            Long productId = Long.parseLong(parts[0]);
-            Integer quantityOrdered = Integer.parseInt(parts[1]);
+            // Parse the JSON string (for a learning project, simple split is fine)
+            Long productId = Long.parseLong(message.split("\"productId\": ")[1].split(",")[0]);
+            Integer quantityOrdered = Integer.parseInt(message.split("\"quantity\": ")[1].split(",")[0]);
 
             // Find the product in the database
             Optional<Product> optionalProduct = productRepository.findById(productId);
